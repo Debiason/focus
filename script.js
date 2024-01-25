@@ -7,6 +7,10 @@ const titulo = document.querySelector('.app__title');
 const botoes = document.querySelectorAll('.app__card-button');
 const startPauseBt = document.querySelector('#start-pause');
 const musicaFocoInput = document.querySelector('#alternar-musica');
+const tempoNaTela = document.querySelector('#timer');
+const titleStartPause = document.querySelector('#title-start-pause');
+const iconeStartPause = document.querySelector('.app__card-primary-butto-icon');
+
 const musica = new Audio('./sons/luna-rise-part-one.mp3');
 const somFim = new Audio('./sons/beep.mp3');
 const somInicio= new Audio('./sons/play.wav');
@@ -16,7 +20,7 @@ const somPause = new Audio('./sons/pause.mp3');
 
 musica.loop = true;
 
-let tempoDecorridoEmSegundos = 5;
+let tempoDecorridoEmSegundos = 1500;
 let intervaloId = null;
 
 musicaFocoInput.addEventListener('change', () => {
@@ -28,22 +32,25 @@ musicaFocoInput.addEventListener('change', () => {
 })
 
 focoBt.addEventListener('click', () => {
+    tempoDecorridoEmSegundos = 1500;
    alteraContexto('foco');
    focoBt.classList.add('active');
 })
 
 curtoBt.addEventListener('click', () => {
+    tempoDecorridoEmSegundos = 300;
     alteraContexto('descanso-curto');
     curtoBt.classList.add('active');
 })
 
 longoBt.addEventListener('click', () => {
+    tempoDecorridoEmSegundos = 900;
     alteraContexto('descanso-longo');
     longoBt.classList.add('active');
 })
 
 function alteraContexto(contexto){
-
+    mostraTempo();
     botoes.forEach(function (contexto) {
         contexto.classList.remove('active')
     });
@@ -73,23 +80,28 @@ function alteraContexto(contexto){
 const contagemRegressiva = () => {
     if (tempoDecorridoEmSegundos <= 0) {
         somFim.play();
+       // alert('tempo Finalizado!')
         zerar();
-        alert('tempo Finalizado!')
         return;
     }
     tempoDecorridoEmSegundos -= 1;
+    mostraTempo();
     console.log('Temporizador: ' + tempoDecorridoEmSegundos);
 }
 
 startPauseBt.addEventListener('click', iniciarOuPausar);
 
 function iniciarOuPausar() {
-    somInicio.play();
     if (intervaloId) {
+        somPause.play();
+        titleStartPause.textContent = 'Pause'
+        iconeStartPause.setAttribute('src', './imagens/pause.png');
         zerar();
         return;
-        
     }
+    somInicio.play();
+    titleStartPause.textContent = 'Começar'
+    iconeStartPause.setAttribute('src', './imagens/play_arrow.png');
     intervaloId = setInterval(contagemRegressiva, 1000)
 }
 
@@ -97,3 +109,11 @@ function zerar() {
     clearInterval(intervaloId);
     intervaloId = null;
 }
+
+function mostraTempo() {
+    const tempo = new Date(tempoDecorridoEmSegundos * 1000);
+    const tempoFormatado = tempo.toLocaleTimeString('pt-Br', {minute: '2-digit', second: '2-digit'});
+    tempoNaTela.innerHTML = `${tempoFormatado}`;
+}
+
+mostraTempo();
